@@ -1,7 +1,3 @@
--- Opprett database om den ikke finnes
-CREATE DATABASE IF NOT EXISTS DUMMYJSON_PIPELINE;
+-- 1) Velg database og schema
 USE DATABASE DUMMYJSON_PIPELINE;
-
--- Opprett schema for rådata
-CREATE SCHEMA IF NOT EXISTS RAW_STAGE;
 USE SCHEMA RAW_STAGE;

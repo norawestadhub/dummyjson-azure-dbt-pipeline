@@ -217,12 +217,55 @@ complete_data_pipeline_project_REBUILT/
 * **KEY\_VAULT\_URI**: URI til Key Vault
 * **AZURE\_CREDENTIALS**: GitHub Secret for Service Principal-auth
 
-### Snowflake SQL-scripts
+## Snowflake External Stage & COPY INTO
 
-Alle SQL-skriptene ligger i `sql/`-mappen:
+I dette repoet ligger SQL-skriptene som laster rå JSON-filer fra Azure Blob Storage over til Snowflake. De tre filene du trenger å kjøre, i denne rekkefølgen, ligger i `sql/`-mappen:
 
-1. `01_create_database_and_schema.sql` – oppretter database og schema  
-2. `02_create_file_format_and_stage.sql` – definerer JSON-format og stage mot Azure Blob  
-3. `03_create_table_and_copy_into.sql` – oppretter tabell og laster inn data  
+1. **01_create_database_and_schema.sql**  
+   Oppretter database `DUMMYJSON_PIPELINE` og schema `RAW_STAGE`:
+   ```sql
+   CREATE DATABASE IF NOT EXISTS DUMMYJSON_PIPELINE;
+   USE DATABASE DUMMYJSON_PIPELINE;
 
-Du kan kjøre dem i Snowsight, SnowSQL eller via din foretrukne klient.
+   CREATE SCHEMA IF NOT EXISTS RAW_STAGE;
+   USE SCHEMA RAW_STAGE;
+CREATE OR REPLACE FILE FORMAT RAW_JSON_FORMAT
+  TYPE = 'JSON' COMPRESSION = 'AUTO';
+
+CREATE OR REPLACE STAGE RAW_JSON_STAGE
+  URL = 'azure://dummyjsonstorage01.blob.core.windows.net/raw'
+  CREDENTIALS=(AZURE_SAS_TOKEN='?sv=<din-SAS-token>')
+  FILE_FORMAT = RAW_JSON_FORMAT;
+  USE DATABASE DUMMYJSON_PIPELINE;
+USE SCHEMA RAW_STAGE;
+
+CREATE OR REPLACE TABLE PRODUCTS_RAW (json_data VARIANT);
+CREATE OR REPLACE TABLE CARTS_RAW    (json_data VARIANT);
+CREATE OR REPLACE TABLE USERS_RAW    (json_data VARIANT);
+
+COPY INTO PRODUCTS_RAW (json_data)
+FROM @RAW_JSON_STAGE
+FILE_FORMAT = RAW_JSON_FORMAT
+PATTERN     = '.*products_.*\.json'
+ON_ERROR    = 'CONTINUE'
+;
+
+COPY INTO CARTS_RAW (json_data)
+FROM @RAW_JSON_STAGE
+FILE_FORMAT = RAW_JSON_FORMAT
+PATTERN     = '.*carts_.*\.json'
+ON_ERROR    = 'CONTINUE'
+;
+
+COPY INTO USERS_RAW (json_data)
+FROM @RAW_JSON_STAGE
+FILE_FORMAT = RAW_JSON_FORMAT
+PATTERN     = '.*users_.*\.json'
+ON_ERROR    = 'CONTINUE'
+;
+
+SELECT
+  (SELECT COUNT(*) FROM PRODUCTS_RAW) AS products_count,
+  (SELECT COUNT(*) FROM CARTS_RAW)    AS carts_count,
+  (SELECT COUNT(*) FROM USERS_RAW)    AS users_count
+;
