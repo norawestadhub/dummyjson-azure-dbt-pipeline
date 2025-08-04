@@ -37,3 +37,4 @@ SELECT
   (SELECT COUNT(*) FROM CARTS_RAW)    AS carts_count,
   (SELECT COUNT(*) FROM USERS_RAW)    AS users_count
 ;
+
