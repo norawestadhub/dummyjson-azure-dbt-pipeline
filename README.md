@@ -216,3 +216,13 @@ complete_data_pipeline_project_REBUILT/
 * **LOG\_LEVEL**: Logger-nivå (`INFO`, `DEBUG`)
 * **KEY\_VAULT\_URI**: URI til Key Vault
 * **AZURE\_CREDENTIALS**: GitHub Secret for Service Principal-auth
+
+### Snowflake SQL-scripts
+
+Alle SQL-skriptene ligger i `sql/`-mappen:
+
+1. `01_create_database_and_schema.sql` – oppretter database og schema  
+2. `02_create_file_format_and_stage.sql` – definerer JSON-format og stage mot Azure Blob  
+3. `03_create_table_and_copy_into.sql` – oppretter tabell og laster inn data  
+
+Du kan kjøre dem i Snowsight, SnowSQL eller via din foretrukne klient.

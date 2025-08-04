@@ -1,0 +1,6 @@
+
+COPY INTO PRODUCTS_RAW(json_data)
+FROM (
+  SELECT $1 FROM @RAW_JSON_STAGE/products_*.json
+)
+ON_ERROR = 'CONTINUE'
