@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -28,14 +29,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 4. Deploy til Azure Functions
-      - name: Deploy to Azure Functions
-        uses: azure/functions-action@v1
+      # 4. Azure CLI login med Service Principal
+      - name: Login to Azure
+        uses: azure/login@v1
         with:
-          app-name: 'dummyjson-to-blob-func'                  # Navnet på Function App i Azure
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
-          package: '.'                                        # rotmappen til prosjektet
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # 5. (Valgfritt) Verifiser ved å gjøre et HTTP-kall
-      #- name: Smoke test
-      #  run: curl --fail https://dummyjson-to-blob-func.azurewebsites.net/api/run-pipeline
+      # 5. Pakk alt til en zip (ignorer .git og .venv)
+      - name: Create deployment package
+        run: |
+          zip -r deployment.zip . -x ".git/*" -x ".venv/*"
+
+      # 6. Deploy til Azure Function via ZipDeploy
+      - name: Deploy via ZipDeploy
+        run: |
+          az functionapp deployment source config-zip \
+            --resource-group data-dummyjson-demo-nwe-rg \
+            --name dummyjson-to-blob-func \
+            --src deployment.zip
