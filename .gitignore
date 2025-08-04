@@ -1,0 +1,35 @@
+# Git
+.git/
+# VS Code
+.vscode/
+# Python cache og bygg
+__pycache__/
+*.py[cod]
+*$py.class
+# Azure Storage Emulator
+__azurite_db_*__.json
+__blobstorage__/
+__queuestorage__/
+# Lokale settings og miljøfiler
+local.settings.json
+.env
+# Virtuelt miljø
+venv/
+.python_packages/
+# Testmapper
+test/
+tests/
+# Coverage-rapporter
+.coverage
+coverage/
+# Distribusjon/pakker
+dist/
+build/
+# Loggfiler
+logs/
+# Node-moduler (hvis aktuelt)
+node_modules/
+# Andre IDE-filer
+*.suo
+*.user
+*.vs/
