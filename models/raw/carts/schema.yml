@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: raw_carts
+    description: "Raw JSON variant column and file name loaded from dummyjson API for carts"
+    columns:
+      - name: json_data
+        description: "VARIANT column containing the full JSON payload for carts"
+        tests:
+          - not_null
+      - name: file_name
+        description: "Name of the JSON file ingested for this carts payload"
+        tests:
+          - not_null
+          - unique

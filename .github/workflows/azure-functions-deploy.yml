@@ -1,0 +1,49 @@
+# .github/workflows/azure-functions-deploy.yml
+
+name: CI/CD – Azure Functions
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Sjekk ut koden
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Sett opp Python 3.11
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # 3. Installer dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 4. Azure CLI login med Service Principal
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 5. Pakk alt til en zip (ignorer .git og .venv)
+      - name: Create deployment package
+        run: |
+          zip -r deployment.zip . -x ".git/*" -x ".venv/*"
+
+      # 6. Deploy til Azure Function via ZipDeploy
+      - name: Deploy via ZipDeploy
+        run: |
+          az functionapp deployment source config-zip \
+            --resource-group data-dummyjson-demo-nwe-rg \
+            --name dummyjson-to-blob-func \
+            --src deployment.zip

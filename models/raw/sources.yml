@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: dummyjson
+    database: DUMMYJSON_PIPELINE
+    schema: RAW_STAGE
+    tables:
+      - name: products_raw
+      - name: carts_raw
+      - name: users_raw

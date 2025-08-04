@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: int_carts
+    description: "Aggregated carts with price and size calculations"
+    columns:
+      - name: cart_id
+        description: "Unique identifier for the cart"
+        tests:
+          - not_null
+      - name: user_id
+        description: "Identifier of the user who owns the cart"
+        tests:
+          - not_null
+      - name: total_products
+        description: "Number of distinct product lines in the cart"
+        tests:
+          - not_null
+      - name: total_quantity
+        description: "Total quantity of all items in the cart"
+        tests:
+          - not_null
+      - name: avg_price_per_item
+        description: "Average price per item in the cart"
+        tests:
+          - not_null
+      - name: cart_size
+        description: "Cart size category based on total_quantity"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["small_cart", "medium_cart", "bulk_cart"]
+
