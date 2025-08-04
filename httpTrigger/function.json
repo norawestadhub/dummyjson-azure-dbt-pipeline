@@ -1,13 +1,14 @@
 {
-  "scriptFile": "../shared.py",
-  "entryPoint": "run_pipeline",
+  "scriptFile": "__init__.py",
+  "entryPoint": "main",
   "bindings": [
     {
       "authLevel": "function",
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["get","post"]
+      "methods": [ "get", "post" ],
+      "route": "run-pipeline"
     },
     {
       "type": "http",
