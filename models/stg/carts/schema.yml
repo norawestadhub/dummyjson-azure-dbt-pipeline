@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: stg_carts
+    description: "Staging model for carts: one row per cart from the latest JSON file"
+    columns:
+      - name: cart_id
+        description: "Unique identifier for the cart"
+        tests:
+          - not_null
+      - name: user_id
+        description: "Identifier of the user who owns the cart"
+        tests:
+          - not_null
+      

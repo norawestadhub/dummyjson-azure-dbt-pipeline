@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: int_users
+    description: "Intermediate model for user information with age grouping"
+    columns:
+      - name: user_id
+        description: "Unique identifier for the user"
+        tests:
+          - not_null
+      - name: full_name
+        description: "Concatenation of first and last name"
+        tests:
+          - not_null
+      - name: email
+        description: "User’s email address"
+        tests:
+          - not_null
+      - name: city
+        description: "City where the user lives"
+        tests:
+          - not_null
+      - name: age_group
+        description: "Age category based on user’s age"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["underage", "young_adult", "adult", "senior"]
+      - name: company_name
+        description: "Name of the company the user works for"

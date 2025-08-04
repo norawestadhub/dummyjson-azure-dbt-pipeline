@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: dim_products
+    description: "Dimension table for products"
+    columns:
+      - name: id
+        description: "Unique identifier for the product"
+        tests:
+          - not_null
+      - name: title
+        description: "Product title"
+        tests:
+          - not_null
+      - name: category
+        description: "Product category"
+      - name: brand
+        description: "Product brand"
+      - name: price
+        description: "Original price of the product"
+        tests:
+          - not_null
+      - name: discount_percentage
+        description: "Discount percentage applied to the product"
+      - name: discounted_price
+        description: "Price after discount"
+        tests:
+          - not_null
+      - name: rating
+        description: "Customer rating of the product"
+      - name: stock
+        description: "Number of items in stock"
+      - name: stock_status
+        description: "Stock availability status"
+        tests:
+          - accepted_values:
+              values: ["out_of_stock", "low_stock", "in_stock"]
