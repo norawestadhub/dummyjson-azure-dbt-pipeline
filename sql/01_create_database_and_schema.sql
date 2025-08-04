@@ -1,3 +1,0 @@
--- 1) Velg database og schema
-USE DATABASE DUMMYJSON_PIPELINE;
-USE SCHEMA RAW_STAGE;

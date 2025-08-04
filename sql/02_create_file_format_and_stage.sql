@@ -1,5 +1,0 @@
--- 2) (Re-)opprett JSON-filformat
-CREATE OR REPLACE FILE FORMAT RAW_JSON_FORMAT
-  TYPE = 'JSON'
-  COMPRESSION = 'AUTO'
-;
