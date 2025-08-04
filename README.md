@@ -1,158 +1,218 @@
 # Complete Data Pipeline Project
 
-**Innhold**  
-- [Om prosjektet](#om-prosjektet)  
-- [Forutsetninger](#forutsetninger)  
-- [Oppsett lokalt](#oppsett-lokalt)  
-- [Kjøring lokalt](#kjøring-lokalt)  
-- [Deploy til Azure](#deploy-til-azure)  
-- [Mappestruktur](#mappestruktur)  
-- [Miljøvariabler / secrets](#miljøvariabler--secrets)  
+**Innhold**
+
+* [Om prosjektet](#om-prosjektet)
+* [Forutsetninger](#forutsetninger)
+* [Oppsett lokalt](#oppsett-lokalt)
+* [Kjøring lokalt](#kjøring-lokalt)
+* [Deploy til Azure](#deploy-til-azure)
+* [CI/CD med GitHub Actions](#cicd-med-github-actions)
+* [Mappestruktur](#mappestruktur)
+* [Miljøvariabler / secrets](#miljøvariabler--secrets)
 
 ---
 
 ## Om prosjektet
 
-Dette er en Azure Functions-basert data-pipeline som:  
-1. Henter JSON-data fra tre API-endepunkter (`products`, `carts`, `users`)  
-2. Laster opp dataene som timestampede `.json`-filer til en Azure Blob-container  
-3. Støtter både HTTP-trigger (manuell kjøring) og Timer-trigger (planlagt kjøring)  
+Dette er en Azure Functions-basert data-pipeline som:
+
+1. Henter JSON-data fra tre API-endepunkter (`products`, `carts`, `users`)
+2. Laster opp dataene som timestampede `.json`-filer til en Azure Blob-container
+3. Støtter både HTTP-trigger (manuell kjøring) og Timer-trigger (planlagt kjøring)
 
 ---
 
 ## Forutsetninger
 
-- **Node.js & npm**  
-- **Azurite** (lokal Azure Storage emulator)  
+* **Node.js & npm**
+* **Azurite** (lokal Azure Storage emulator)
+
   ```bash
-  npm install -g azurite
-Python 3.8+ (anbefalt 3.10 for Azure Functions)
+  npm install -g azurite  
+  azurite  
+  ```
+* **Python 3.10+** (anbefalt for Azure Functions)
+* **Azure Functions Core Tools (v4)**
+* **Azure CLI**
+* (Valgfritt) VS Code med “Azure Functions”-extension
+* **Git**-repo med `main`-branch
 
-Azure Functions Core Tools (v4)
+---
 
-Azure CLI (om du vil deploye fra terminal)
+## Oppsett lokalt
 
-(Valgfritt) VS Code med “Azure Functions”-extension
+1. **Clone repo**
 
-En eksisterende Azure Function App (for produksjons-deploy)
+   ```bash
+   git clone <din-repo-URL>  
+   cd complete_data_pipeline_project_REBUILT  
+   ```
 
-Key Vault med secret dummy-json-storage01-connection-string
+2. **Opprett & aktiver virtuelt miljø**
 
-Oppsett lokalt
-Clone repo
+   ```bash
+   python -m venv .venv  
+   # Windows (PowerShell):  
+   .\.venv\Scripts\Activate.ps1  
+   # macOS/Linux:  
+   source .venv/bin/activate  
+   ```
 
-bash
-Copy
-Edit
-git clone <din-repo-URL>
-cd complete_data_pipeline_project_REBUILT
-Opprett & aktiver virtuelt miljø
+3. **Installer dependencies**
 
-bash
-Copy
-Edit
-python -m venv .venv
-# Windows (PowerShell):
-.\.venv\Scripts\Activate.ps1
-# macOS/Linux:
-source .venv/bin/activate
-Installer dependencies
+   ```bash
+   pip install -r requirements.txt  
+   ```
 
-bash
-Copy
-Edit
-pip install -r requirements.txt
-Start Azurite
+4. **Start Azurite**
 
-bash
-Copy
-Edit
-azurite
-La terminalen stå åpen — Azurite gir deg lokal Blob-endpoint på http://127.0.0.1:10000.
+   ```bash
+   azurite  
+   ```
 
-Konfigurer environment vars
-Rediger local.settings.json (ligger i roten) om nødvendig:
+   La terminalen stå åpen (Blob på `http://127.0.0.1:10000`).
 
-json
-Copy
-Edit
-{
-  "IsEncrypted": false,
-  "Values": {
-    "FUNCTIONS_WORKER_RUNTIME": "python",
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "DUMMY_JSON_STORAGE_CONNECTION_STRING": "UseDevelopmentStorage=true",
-    "RAW_CONTAINER_NAME": "raw",
-    "LOG_LEVEL": "INFO",
-    "KEY_VAULT_URI": "https://dummyjsonkvdemonwe.vault.azure.net/"
-  }
-}
-Kjøring lokalt
-bash
-Copy
-Edit
-func start --verbose --port 7071
-HTTP-trigger
-Kall endpointen med CURL eller Postman:
+5. **Konfigurer environment vars**
+   Rediger `local.settings.json` i roten:
 
-bash
-Copy
-Edit
-curl http://localhost:7071/api/run-pipeline
-Timer-trigger
-Sjekk loggene for å se når den kjører neste gang (hver mandag kl. 09:00 UTC).
+   ```json
+   {  
+     "IsEncrypted": false,  
+     "Values": {  
+       "FUNCTIONS_WORKER_RUNTIME": "python",  
+       "AzureWebJobsStorage": "UseDevelopmentStorage=true",  
+       "DUMMY_JSON_STORAGE_CONNECTION_STRING": "UseDevelopmentStorage=true",  
+       "RAW_CONTAINER_NAME": "raw",  
+       "LOG_LEVEL": "INFO",  
+       "KEY_VAULT_URI": "https://dummyjsonkvdemonwe.vault.azure.net/"  
+     }  
+   }  
+   ```
 
-Deploy til Azure
-Logg inn med Azure CLI eller i VS Code:
+---
 
-bash
-Copy
-Edit
-az login
-(Valgfritt) Bygg & test lokalt
+## Kjøring lokalt
 
-bash
-Copy
-Edit
-func start
-Deploy med Azure Functions Core Tools:
+```bash
+func start --verbose --port 7071  
+```
 
-bash
-Copy
-Edit
-func azure functionapp publish <NAVN_PÅ_DIN_FUNCTION_APP>
-Eller bruk VS Code: høyreklikk på Function App i Azure-panelet → “Deploy to Function App”.
+* **HTTP-trigger**
 
-Mappestruktur
-text
-Copy
-Edit
-complete_data_pipeline_project_REBUILT/
-├─ .funcignore
-├─ host.json
-├─ local.settings.json
-├─ requirements.txt
-├─ shared.py                  # Felles pipeline-logikk
-├─ get_secrets.py             # Key Vault-henting
-├─ httpTrigger/
-│   ├─ function.json
-│   └─ __init__.py
-└─ timerTrigger/
-    ├─ function.json
-    └─ __init__.py
-Miljøvariabler / secrets
-AzureWebJobsStorage
-Storage-connection string for Functions-runtime
+  ```bash
+  curl http://localhost:7071/api/run-pipeline  
+  ```
+* **Timer-trigger**
+  Kjør umiddelbart med `"runOnStartup": true` i `timerTrigger/function.json`, restart host.
 
-DUMMY_JSON_STORAGE_CONNECTION_STRING
-Connection string til Blob-storage (hentes fra Key Vault)
+---
 
-RAW_CONTAINER_NAME
-Navnet på Blob-container (f.eks. raw)
+## Deploy til Azure
 
-LOG_LEVEL
-Logger-nivå (INFO, DEBUG osv.)
+1. **Logg inn**
 
-KEY_VAULT_URI
-URI til Key Vault, f.eks. https://dummyjsonkvdemonwe.vault.azure.net/
+   ```bash
+   az login  
+   az account set --subscription <SUBSCRIPTION_ID>  
+   ```
+2. **Deploy**
 
+   ```bash
+   func azure functionapp publish dummyjson-to-blob-func  
+   ```
+3. **App Settings**
+   Sett opp secrets i Azure-portalen under Configuration → Application settings.
+
+---
+
+## CI/CD med GitHub Actions
+
+Automatiser deploy med en service principal og GitHub Actions:
+
+### 1) Opprett Service Principal i Azure
+
+```bash
+az login  
+az account set --subscription <SUBSCRIPTION_ID>  
+az ad sp create-for-rbac \  
+  --name "github-actions-sp" \  
+  --role contributor \  
+  --scopes /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/data-dummyjson-demo-nwe-rg \  
+  --sdk-auth  
+```
+
+Kopier API-utdata fra kommandoen.
+
+### 2) Legg inn GitHub Secrets
+
+* `AZURE_CREDENTIALS`: Lim inn hele JSON-blokken fra SP-kommandoen.
+
+### 3) Workflow-definisjon
+
+Legg til `.github/workflows/azure-functions-deploy.yml` i repo:
+
+```yaml
+name: CI/CD – Azure Functions  
+
+on:  
+  push:  
+    branches: [ main ]  
+  workflow_dispatch:  
+
+jobs:  
+  build-and-deploy:  
+    runs-on: ubuntu-latest  
+
+    steps:  
+      - uses: actions/checkout@v3  
+      - uses: actions/setup-python@v4  
+        with:  
+          python-version: '3.11'  
+      - run: |  
+          python -m pip install --upgrade pip  
+          pip install -r requirements.txt  
+      - uses: azure/login@v1  
+        with:  
+          creds: ${{ secrets.AZURE_CREDENTIALS }}  
+      - run: |  
+          zip -r deployment.zip . -x ".git/*" -x ".venv/*"  
+      - run: |  
+          az functionapp deployment source config-zip \  
+            --resource-group data-dummyjson-demo-nwe-rg \  
+            --name dummyjson-to-blob-func \  
+            --src deployment.zip  
+```
+
+Etter push vil workflow kjøre, autentisere via SP og deploye koden.
+
+---
+
+## Mappestruktur
+
+```text
+complete_data_pipeline_project_REBUILT/  
+├─ .funcignore  
+├─ host.json  
+├─ local.settings.json  
+├─ requirements.txt  
+├─ shared.py  
+├─ get_secrets.py  
+├─ httpTrigger/  
+│   ├─ function.json  
+│   └─ __init__.py  
+└─ timerTrigger/  
+    ├─ function.json  
+    └─ __init__.py  
+```
+
+---
+
+## Miljøvariabler / secrets
+
+* **AzureWebJobsStorage**: Lokal eller produksjons-connection string
+* **DUMMY\_JSON\_STORAGE\_CONNECTION\_STRING**: Blob Storage string fra Key Vault
+* **RAW\_CONTAINER\_NAME**: Navnet på container (`raw`)
+* **LOG\_LEVEL**: Logger-nivå (`INFO`, `DEBUG`)
+* **KEY\_VAULT\_URI**: URI til Key Vault
+* **AZURE\_CREDENTIALS**: GitHub Secret for Service Principal-auth
