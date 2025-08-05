@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: fact_users
+  - name: dim_users
     description: "Dimension table for users"
     columns:
       - name: id

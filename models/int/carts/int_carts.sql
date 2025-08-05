@@ -1,6 +1,3 @@
-Here’s your **`int_carts.sql`** model with all comments translated to English:
-
-```sql
 {{ config(materialized='view') }}
 
 -- 1) Aggregate the number of product lines and total quantity per cart
@@ -42,4 +39,4 @@ select
     else 'small_cart'
   end as cart_size
 from carts
-```
+

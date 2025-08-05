@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: fact_products
+  - name: dim_products
     description: "Dimension table for products"
     columns:
       - name: id

@@ -35,5 +35,5 @@ select
   cs.avg_price_per_item,
   cs.cart_size
 from cart_summary cs
-left join {{ ref('marts_users') }} u on cs.user_id = u.id
+left join {{ ref('dim_users') }} u on cs.user_id = u.id
 left join cart_details cd on cs.cart_id = cd.cart_id
