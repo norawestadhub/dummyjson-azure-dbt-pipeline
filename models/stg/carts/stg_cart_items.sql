@@ -30,17 +30,17 @@ flattened_carts as (
       f.value:userId::int   as user_id,
       f.value:products      as products_array
     from raw_data
-      , lateral flatten(input => raw_data.carts_array) f
+    , lateral flatten(input => raw_data.carts_array) f
 ),
 
 flattened_items as (
     select
       cart_id,
       user_id,
-      i.value:productId::int as product_id,
-      i.value:quantity::int  as quantity
+      i.value:id::int       as product_id,   -- ← here!
+      i.value:quantity::int as quantity
     from flattened_carts
-      , lateral flatten(input => flattened_carts.products_array) i
+    , lateral flatten(input => flattened_carts.products_array) i
 )
 
 select

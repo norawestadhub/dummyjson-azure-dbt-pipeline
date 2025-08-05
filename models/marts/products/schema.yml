@@ -8,6 +8,7 @@ models:
         description: "Unique identifier for the product"
         tests:
           - not_null
+          - unique
       - name: title
         description: "Product title"
         tests:
