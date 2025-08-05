@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: raw_carts
+    description: "Raw data for carts from dummyjson API"
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique

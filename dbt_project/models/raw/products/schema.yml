@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: raw_products
+    description: "Raw data for products from dummyjson API"
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique

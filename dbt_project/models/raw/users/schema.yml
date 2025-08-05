@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: raw_users
+    description: "Raw data for users from dummyjson API"
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
