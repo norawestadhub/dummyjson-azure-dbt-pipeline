@@ -1,0 +1,15 @@
+name: Trigger dbt Cloud Job
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger-dbt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger dbt Cloud Job via API
+        run: |
+          curl -X POST https://ds439.us1.dbt.com/deploy/70471823483285/projects/70471823494506/jobs/70471823492838 \
+          -H "Authorization: Token ${{ secrets.DBT_API_KEY }}"

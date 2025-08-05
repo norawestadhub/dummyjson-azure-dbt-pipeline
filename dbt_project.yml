@@ -17,24 +17,28 @@ clean-targets:
   - "dbt_modules"
 
 models:
-  dummyjson_to_snowflake_dbt:    # Project navn her
-    raw:                         # Rå-data
+  dummyjson_to_snowflake_dbt:
+    raw:
       +materialized: view
       carts:
+      carts_products:
       products:
       users:
-    stg:                         # Staging‐lag
+    stg:
       +materialized: view
       carts:
+      carts_products:
       products:
       users:
-    int:                         # Intermediate‐lag
+    int:
       +materialized: view
       carts:
+      carts_products:
       products:
       users:
-    marts:                       # Mart‐lag
-      +materialized: view
+    mart:
+      +materialized: table
       carts:
+      carts_products:
       products:
       users:
