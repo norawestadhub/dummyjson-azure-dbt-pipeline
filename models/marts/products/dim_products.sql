@@ -15,7 +15,7 @@ with base as (
   from {{ ref('int_products') }}
 )
 
-select
+select distinct
   product_id      as id,
   title,
   category,

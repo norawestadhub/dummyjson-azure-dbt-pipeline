@@ -8,6 +8,7 @@ models:
         description: "Unique identifier for the user"
         tests:
           - not_null
+          - unique
       - name: full_name
         description: "Concatenation of first and last name"
         tests:

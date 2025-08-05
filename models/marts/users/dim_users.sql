@@ -11,7 +11,7 @@ with base as (
   from {{ ref('int_users') }}
 )
 
-select
+select distinct
   user_id         as id,
   full_name,
   age_group,
