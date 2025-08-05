@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: dummyjson
+    database: dummyjson
+    schema: raw
+    tables:
+      - name: imported_products
+        description: "Raw product data from dummyjson API"
+      - name: imported_users
+        description: "Raw user data from dummyjson API"
+      - name: imported_carts
+        description: "Raw cart data from dummyjson API"
