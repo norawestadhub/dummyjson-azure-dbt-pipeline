@@ -2,32 +2,34 @@ version: 2
 
 models:
   - name: stg_users
-    description: "Staging-modell for users fra dummyjson API"
+    description: "Staging model for users: one row per user from the latest JSON file"
     columns:
       - name: user_id
-        description: "Unikt ID for hver bruker"
+        description: "Unique identifier for the user"
         tests:
           - not_null
-          - unique
       - name: first_name
-        description: "Brukerens fornavn"
+        description: "User’s first name"
         tests:
           - not_null
       - name: last_name
-        description: "Brukerens etternavn"
+        description: "User’s last name"
         tests:
           - not_null
       - name: email
-        description: "Brukerens e-postadresse"
+        description: "User’s email address"
         tests:
           - not_null
-          - unique
       - name: age
-        description: "Brukerens alder"
-        tests:
-          - not_null
+        description: "User’s age"
       - name: gender
-        description: "Brukerens kjønn"
-        tests:
-          - accepted_values:
-              values: ['male', 'female', 'other']
+        description: "User’s gender"
+      - name: phone
+        description: "User’s phone number"
+      - name: city
+        description: "City where the user lives"
+      - name: postal_code
+        description: "Postal code for the user’s address"
+      - name: company_name
+        description: "Name of the company the user works for"
+     

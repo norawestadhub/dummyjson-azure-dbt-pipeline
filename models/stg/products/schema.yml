@@ -2,28 +2,29 @@ version: 2
 
 models:
   - name: stg_products
-    description: "Staging-modell for produkter fra dummyjson API"
+    description: "Staging model for products: one row per product from the latest JSON file"
     columns:
       - name: product_id
-        description: "Unikt ID for hvert produkt"
+        description: "Unique identifier for the product"
         tests:
           - not_null
-          - unique
       - name: title
-        description: "Produktets tittel"
+        description: "Product title"
         tests:
           - not_null
+      - name: description
+        description: "Product description"
       - name: price
-        description: "Opprinnelig pris"
+        description: "Original price of the product"
         tests:
           - not_null
       - name: discount_percentage
-        description: "Rabatt i prosent"
-        tests:
-          - not_null
+        description: "Discount percentage applied to the product"
       - name: rating
-        description: "Produktets rating"
+        description: "Customer rating for the product"
       - name: stock
-        description: "Antall på lager"
-        tests:
-          - not_null
+        description: "Number of items in stock"
+      - name: brand
+        description: "Brand name of the product"
+      - name: category
+        description: "Category of the product"

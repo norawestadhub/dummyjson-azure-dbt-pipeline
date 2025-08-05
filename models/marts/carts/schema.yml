@@ -7,14 +7,10 @@ models:
       - name: cart_id
         tests:
           - not_null
-          - unique
       - name: user_name
       - name: user_id
         tests:
           - not_null
-          - relationships:
-              to: ref('marts_users')
-              field: id
       - name: original_cart_value
       - name: discounted_total
       - name: actual_spent

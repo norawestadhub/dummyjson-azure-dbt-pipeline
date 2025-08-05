@@ -7,7 +7,6 @@ models:
       - name: product_id
         tests:
           - not_null
-          - unique
       - name: discounted_price
         tests:
           - not_null

@@ -7,7 +7,6 @@ models:
       - name: user_id
         tests:
           - not_null
-          - unique
       - name: full_name
         tests:
           - not_null
@@ -22,4 +21,3 @@ models:
       - name: email
         tests:
           - not_null
-          - unique

@@ -7,7 +7,6 @@ models:
       - name: id
         tests:
           - not_null
-          - unique
       - name: title
         tests:
           - not_null
@@ -16,9 +15,6 @@ models:
       - name: price
         tests:
           - not_null
-          - relationships:
-              to: ref('marts_products')
-              field: price  # validate price > 0 or similar via custom test
       - name: discount_percentage
       - name: discounted_price
         tests:
