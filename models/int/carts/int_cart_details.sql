@@ -1,38 +1,56 @@
-with carts as (
-    select * from {{ ref('int_carts') }}
-),
+{{ config(materialized='view') }}
 
-users as (
-    select * from {{ ref('int_users') }}
-),
-
-products as (
-    select * from {{ ref('int_products') }}
-),
-
-cart_items as (
+with
+  carts as (
     select
-        cart_id,
-        product_id,
-        quantity
-    from {{ ref('stg_cart_items') }} 
-)
+      cart_id,
+      user_id,
+      cart_size
+    from {{ ref('int_carts') }}
+  ),
+
+  users as (
+    select
+      user_id,
+      full_name,
+      age_group,
+      city
+    from {{ ref('int_users') }}
+  ),
+
+  products as (
+    select
+      product_id,
+      title        as product_title,
+      category,
+      brand,
+      discounted_price
+    from {{ ref('int_products') }}
+  ),
+
+  cart_items as (
+    select
+      cart_id,
+      product_id,
+      quantity
+    from {{ ref('stg_cart_items') }}
+  )
 
 select
-    carts.cart_id,
-    users.user_id,
-    users.full_name,
-    users.age_group,
-    users.city,
-    carts.cart_size,
-    cart_items.product_id,
-    products.title as product_title,
-    products.category,
-    products.brand,
-    products.discounted_price,
-    cart_items.quantity,
-    round(cart_items.quantity * products.discounted_price, 2) as item_total
-from cart_items
-left join carts on cart_items.cart_id = carts.cart_id
-left join users on carts.user_id = users.user_id
-left join products on cart_items.product_id = products.product_id
+  ci.cart_id,
+  c.user_id,
+  u.full_name,
+  u.age_group,
+  u.city,
+  c.cart_size,
+  ci.product_id,
+  p.product_title,
+  p.category,
+  p.brand,
+  p.discounted_price,
+  ci.quantity,
+  round(ci.quantity * p.discounted_price, 2) as item_total
+from cart_items ci
+left join carts   c on ci.cart_id    = c.cart_id
+left join users   u on c.user_id     = u.user_id
+left join products p on ci.product_id = p.product_id

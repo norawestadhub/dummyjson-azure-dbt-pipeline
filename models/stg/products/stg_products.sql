@@ -1,20 +1,25 @@
 {{ config(materialized='view') }}
 
-WITH source AS (
-    SELECT data
-    FROM {{ ref('raw_products') }}
+WITH raw_data AS (
+  SELECT
+    JSON_DATA:products AS products_array
+  FROM {{ ref('raw_products') }}
 ),
 
 flattened AS (
-    SELECT
-        data:id AS product_id,
-        data:title AS title,
-        data:description AS description,
-        data:price AS price,
-        data:category AS category,
-        data:rating AS rating,
-        data:stock AS stock
-    FROM source
+  SELECT
+    f.value:id::INT                AS product_id,
+    f.value:title::STRING          AS title,
+    f.value:description::STRING    AS description,
+    f.value:price::FLOAT           AS price,
+    f.value:discountPercentage::FLOAT AS discount_percentage,
+    f.value:rating::FLOAT          AS rating,
+    f.value:stock::INT             AS stock,
+    f.value:brand::STRING          AS brand,
+    f.value:category::STRING       AS category
+  FROM raw_data
+    , LATERAL FLATTEN(input => raw_data.products_array) f
 )
 
-SELECT * FROM flattened
+SELECT *
+FROM flattened

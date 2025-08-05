@@ -1,20 +1,19 @@
 {{ config(materialized='view') }}
 
-WITH source AS (
-    SELECT data
-    FROM {{ ref('raw_carts') }}
+with raw_data as (
+  select
+    JSON_DATA:carts as carts_array
+  from {{ ref('raw_carts') }}
 ),
 
-flattened AS (
-    SELECT
-        data:id AS product_id,
-        data:title AS title,
-        data:description AS description,
-        data:price AS price,
-        data:category AS category,
-        data:rating AS rating,
-        data:stock AS stock
-    FROM source
+flattened as (
+  select
+    f.value:id::int               as cart_id,
+    f.value:userId::int           as user_id,
+    f.value:total::float          as total,
+    f.value:discountedTotal::float as discounted_total
+  from raw_data
+  , lateral flatten(input => raw_data.carts_array) as f
 )
 
-SELECT * FROM flattened
+select * from flattened

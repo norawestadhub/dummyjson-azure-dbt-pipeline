@@ -1,4 +1,3 @@
-
 name: dummyjson_to_snowflake_dbt
 version: '1.0'
 config-version: 2
@@ -18,25 +17,24 @@ clean-targets:
   - "dbt_modules"
 
 models:
-  int:
-    carts:
+  dummyjson_to_snowflake_dbt:    # Project navn her
+    raw:                         # Rå-data
       +materialized: view
-    products:
+      carts:
+      products:
+      users:
+    stg:                         # Staging‐lag
       +materialized: view
-    users:
+      carts:
+      products:
+      users:
+    int:                         # Intermediate‐lag
       +materialized: view
-  marts:
-    carts:
+      carts:
+      products:
+      users:
+    marts:                       # Mart‐lag
       +materialized: view
-    products:
-      +materialized: view
-    users:
-      +materialized: view
-  raw:
-    carts:
-      +materialized: view
-    products:
-      +materialized: view
-    users:
-      +materialized: view
-
+      carts:
+      products:
+      users:
