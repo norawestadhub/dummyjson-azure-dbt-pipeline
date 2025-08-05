@@ -15,7 +15,7 @@ cart_items as (
         cart_id,
         product_id,
         quantity
-    from {{ ref('stg_cart_items') }} -- antar at du har en egen modell for dette
+    from {{ ref('stg_cart_items') }} 
 )
 
 select

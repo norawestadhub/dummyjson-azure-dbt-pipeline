@@ -2,7 +2,7 @@
 
 WITH source AS (
     SELECT data
-    FROM {{ ref('raw_products') }}
+    FROM {{ ref('raw_carts') }}
 ),
 
 flattened AS (

@@ -1,3 +1,3 @@
 SELECT * 
 
-FROM {{ source('dummyjson', 'imported_users') }}
+FROM {{ source('dummyjson', 'users_raw') }}

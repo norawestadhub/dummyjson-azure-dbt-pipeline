@@ -1,3 +1,3 @@
 SELECT * 
 
-FROM {{ source('dummyjson', 'imported_carts') }}
+FROM {{ source('dummyjson', 'carts_raw') }}

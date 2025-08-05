@@ -1,28 +1,42 @@
-name: 'dummyjson_to_snowflake_dbt'
-version: '1.0.0'
+
+name: dummyjson_to_snowflake_dbt
+version: '1.0'
 config-version: 2
 
-profile: 'default'
+profile: user
 
 model-paths: ["models"]
-analysis-paths: ["analyses"]
+analysis-paths: ["analysis"]
 test-paths: ["tests"]
-seed-paths: ["seeds"]
+seed-paths: ["data"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 
 target-path: "target"
 clean-targets:
   - "target"
-  - "dbt_packages"
+  - "dbt_modules"
 
 models:
-  dummyjson_to_snowflake_dbt:
-    raw:
+  int:
+    carts:
       +materialized: view
-    stg:
+    products:
       +materialized: view
-    int:
+    users:
       +materialized: view
-    marts:
-      +materialized: table
+  marts:
+    carts:
+      +materialized: view
+    products:
+      +materialized: view
+    users:
+      +materialized: view
+  raw:
+    carts:
+      +materialized: view
+    products:
+      +materialized: view
+    users:
+      +materialized: view
+
