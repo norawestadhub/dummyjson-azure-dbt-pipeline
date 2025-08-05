@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_carts
+    description: "Flattened staging av carts – én rad per cart fra siste JSON-fil"
+    columns:
+      - name: cart_id
+        description: "Unik ID for handlekurven"
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: "ID til brukeren som eier handlekurven"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_users')
+              field: user_id
+      - name: total
+        description: "Opprinnelig totalpris for handlekurven"
+        tests:
+          - not_null:
+              severity: warn
+      - name: discounted_total
+        description: "Totalpris etter eventuelle rabatter"
+        tests:
+          - not_null
+      - name: ingest_date
+        description: "Datoen (YYYY-MM-DD) da JSON-filen ble lastet inn i rådata"
+        tests:
+          - not_null

@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: int_carts
+    description: "Aggregert carts med pris- og størrelse-beregninger"
+    columns:
+      - name: cart_id
+        tests:
+          - not_null
+          - unique
+      - name: total_products
+        tests:
+          - not_null
+      - name: total_quantity
+        tests:
+          - not_null
+      - name: avg_price_per_item
+        tests:
+          - not_null
+      - name: cart_size
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['small_cart', 'medium_cart', 'bulk_cart']
+      - name: user_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('marts_users')
+              field: id

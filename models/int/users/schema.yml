@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: int_users
+    description: "Intermediate-modell for brukerinformasjon"
+    columns:
+      - name: user_id
+        tests:
+          - not_null
+          - unique
+      - name: full_name
+        tests:
+          - not_null
+      - name: age_group
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['underage', 'young_adult', 'adult', 'senior']
+      - name: city
+        tests:
+          - not_null
+      - name: email
+        tests:
+          - not_null
+          - unique

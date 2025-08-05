@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: marts_users
+    description: "Dimensjonstabel for brukere"
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+      - name: full_name
+        tests:
+          - not_null
+      - name: age_group
+        tests:
+          - not_null
+      - name: gender
+        tests:
+          - accepted_values:
+              values: ['male', 'female', 'other']
+      - name: city
+      - name: email
+        tests:
+          - not_null
+          - unique
+

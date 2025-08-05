@@ -1,3 +1,4 @@
-SELECT * 
-
-FROM {{ source('dummyjson', 'users_raw') }}
+select
+  json_data,
+  file_name
+from {{ source('dummyjson', 'users_raw') }}

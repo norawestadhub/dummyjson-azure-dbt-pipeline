@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: marts_products
+    description: "Dimensjonstabel for produkter"
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+      - name: title
+        tests:
+          - not_null
+      - name: category
+      - name: brand
+      - name: price
+        tests:
+          - not_null
+          - relationships:
+              to: ref('marts_products')
+              field: price  # validate price > 0 or similar via custom test
+      - name: discount_percentage
+      - name: discounted_price
+        tests:
+          - not_null
+      - name: rating
+      - name: stock
+      - name: stock_status
+        tests:
+          - accepted_values:
+              values: ['out_of_stock', 'low_stock', 'in_stock']

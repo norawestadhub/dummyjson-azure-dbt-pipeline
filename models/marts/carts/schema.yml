@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: marts_carts
+    description: "Faktatabell for handlekurver"
+    columns:
+      - name: cart_id
+        tests:
+          - not_null
+          - unique
+      - name: user_name
+      - name: user_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('marts_users')
+              field: id
+      - name: original_cart_value
+      - name: discounted_total
+      - name: actual_spent
+      - name: total_products
+      - name: total_quantity
+      - name: distinct_products
+      - name: avg_price_per_item
+      - name: cart_size
+        tests:
+          - accepted_values:
+              values: ['small_cart', 'medium_cart', 'bulk_cart']

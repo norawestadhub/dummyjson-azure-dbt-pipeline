@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: stg_products
+    description: "Staging-modell for produkter fra dummyjson API"
+    columns:
+      - name: product_id
+        description: "Unikt ID for hvert produkt"
+        tests:
+          - not_null
+          - unique
+      - name: title
+        description: "Produktets tittel"
+        tests:
+          - not_null
+      - name: price
+        description: "Opprinnelig pris"
+        tests:
+          - not_null
+      - name: discount_percentage
+        description: "Rabatt i prosent"
+        tests:
+          - not_null
+      - name: rating
+        description: "Produktets rating"
+      - name: stock
+        description: "Antall på lager"
+        tests:
+          - not_null

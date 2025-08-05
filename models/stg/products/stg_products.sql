@@ -1,25 +1,41 @@
 {{ config(materialized='view') }}
 
-WITH raw_data AS (
-  SELECT
-    JSON_DATA:products AS products_array
-  FROM {{ ref('raw_products') }}
+with raw_with_date as (
+    select
+        json_data,
+        file_name,
+        to_date(
+          left( split_part(file_name, '_', 2), 10 ),
+          'YYYY-MM-DD'
+        ) as ingest_date
+    from {{ ref('raw_products') }}
+    where file_name is not null
 ),
 
-flattened AS (
-  SELECT
-    f.value:id::INT                AS product_id,
-    f.value:title::STRING          AS title,
-    f.value:description::STRING    AS description,
-    f.value:price::FLOAT           AS price,
-    f.value:discountPercentage::FLOAT AS discount_percentage,
-    f.value:rating::FLOAT          AS rating,
-    f.value:stock::INT             AS stock,
-    f.value:brand::STRING          AS brand,
-    f.value:category::STRING       AS category
-  FROM raw_data
-    , LATERAL FLATTEN(input => raw_data.products_array) f
+latest as (
+    select max(ingest_date) as last_date
+    from raw_with_date
+),
+
+raw_data as (
+    select json_data:products as products_array
+    from raw_with_date r
+    join latest       l on r.ingest_date = l.last_date
+),
+
+flattened as (
+    select
+      f.value:id::int                   as product_id,
+      f.value:title::string             as title,
+      f.value:description::string       as description,
+      f.value:price::float              as price,
+      f.value:discountPercentage::float as discount_percentage,
+      f.value:rating::float             as rating,
+      f.value:stock::int                as stock,
+      f.value:brand::string             as brand,
+      f.value:category::string          as category
+    from raw_data
+      , lateral flatten(input => raw_data.products_array) f
 )
 
-SELECT *
-FROM flattened
+select * from flattened
