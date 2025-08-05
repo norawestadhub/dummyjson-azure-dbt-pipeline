@@ -34,3 +34,4 @@ ALTER TASK RAW_STAGE_LOAD_TASK RESUME;
 
 -- 4) (Optional) Verify that the task exists
 SHOW TASKS LIKE 'RAW_STAGE_LOAD_TASK';
+
