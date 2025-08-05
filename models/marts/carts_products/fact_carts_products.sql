@@ -36,6 +36,6 @@ items_with_total as (
 
 )
 
-select
+select distinct
   *
 from items_with_total
