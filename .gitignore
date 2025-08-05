@@ -6,6 +6,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 # Azure Storage Emulator
 __azurite_db_*__.json
 __blobstorage__/
