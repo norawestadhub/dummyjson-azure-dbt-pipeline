@@ -1,6 +1,9 @@
+Here’s your **`int_carts.sql`** model with all comments translated to English:
+
+```sql
 {{ config(materialized='view') }}
 
--- 1) Aggreger antall produkt-linjer og total mengde per cart
+-- 1) Aggregate the number of product lines and total quantity per cart
 with aggregated_items as (
   select
     cart_id,
@@ -10,7 +13,7 @@ with aggregated_items as (
   group by cart_id
 ),
 
--- 2) Slå sammen staging carts med de aggregerte tallene
+-- 2) Join staging carts with the aggregated metrics
 carts as (
   select
     sc.cart_id,
@@ -24,7 +27,7 @@ carts as (
     on sc.cart_id = ai.cart_id
 )
 
--- 3) Endelig select: avg_price_per_item + cart_size
+-- 3) Final select: average price per item + cart size category
 select
   cart_id,
   user_id,
@@ -39,3 +42,4 @@ select
     else 'small_cart'
   end as cart_size
 from carts
+```

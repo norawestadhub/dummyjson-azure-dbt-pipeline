@@ -1,24 +1,35 @@
 version: 2
 
 models:
-  - name: marts_carts
-    description: "Faktatabell for handlekurver"
+  - name: fact_carts
+    description: "Fact table for shopping carts"
     columns:
       - name: cart_id
+        description: "Unique identifier for the cart"
+        tests:
+          - not_null
+      - name: user_id
+        description: "Identifier of the user who owns the cart"
         tests:
           - not_null
       - name: user_name
-      - name: user_id
-        tests:
-          - not_null
+        description: "Full name of the user who owns the cart"
       - name: original_cart_value
+        description: "Original total value of the cart before discounts"
       - name: discounted_total
+        description: "Total value of the cart after discounts"
       - name: actual_spent
+        description: "Amount actually spent (could equal discounted_total)"
       - name: total_products
-      - name: total_quantity
+        description: "Number of distinct product lines in the cart"
       - name: distinct_products
+        description: "Count of distinct product IDs in the cart"
+      - name: total_quantity
+        description: "Total quantity of all items in the cart"
       - name: avg_price_per_item
+        description: "Average price paid per item in the cart"
       - name: cart_size
+        description: "Categorized cart size based on total_quantity"
         tests:
           - accepted_values:
-              values: ['small_cart', 'medium_cart', 'bulk_cart']
+              values: ["small_cart", "medium_cart", "bulk_cart"]

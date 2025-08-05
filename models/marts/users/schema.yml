@@ -1,24 +1,29 @@
 version: 2
 
 models:
-  - name: marts_users
-    description: "Dimensjonstabel for brukere"
+  - name: fact_users
+    description: "Dimension table for users"
     columns:
       - name: id
+        description: "Unique identifier for the user"
         tests:
           - not_null
       - name: full_name
+        description: "Concatenation of first and last name"
         tests:
           - not_null
       - name: age_group
+        description: "Age category of the user"
         tests:
           - not_null
       - name: gender
+        description: "Gender of the user"
         tests:
           - accepted_values:
-              values: ['male', 'female', 'other']
+              values: ["male", "female", "other"]
       - name: city
+        description: "City where the user lives"
       - name: email
+        description: "User’s email address"
         tests:
           - not_null
-
