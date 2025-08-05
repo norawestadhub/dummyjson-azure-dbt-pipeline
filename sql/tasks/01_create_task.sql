@@ -1,4 +1,4 @@
--- 0) Velg database og schema
+-- 0) Velg riktig database og schema
 USE DATABASE DUMMYJSON_PIPELINE;
 USE SCHEMA RAW_STAGE;
 
@@ -14,84 +14,92 @@ CREATE OR REPLACE STORAGE INTEGRATION MY_AZURE_INT
   STORAGE_PROVIDER          = 'AZURE'
   ENABLED                   = TRUE
   AZURE_TENANT_ID           = '53b76c82-3f7e-4d92-9e49-7e1da18b8696'
-  STORAGE_ALLOWED_LOCATIONS = (
-    'azure://dummyjsonstorage01.blob.core.windows.net/raw'
-  )
+  STORAGE_ALLOWED_LOCATIONS = ('azure://dummyjsonstorage01.blob.core.windows.net/raw')
 ;
 
--- 3) Inspeksjon av integrasjonen
-DESCRIBE STORAGE INTEGRATION MY_AZURE_INT;
-
--- 4) (Re-)opprett stage mot Azure Blob ved å bruke integrasjonen
+-- 3) (Re-)opprett stage mot Azure Blob
 CREATE OR REPLACE STAGE RAW_JSON_STAGE
   URL                 = 'azure://dummyjsonstorage01.blob.core.windows.net/raw'
   STORAGE_INTEGRATION = MY_AZURE_INT
   FILE_FORMAT         = RAW_JSON_FORMAT
 ;
 
--- 5) (Re-)opprett råtabeller
--- CREATE OR REPLACE TABLE PRODUCTS_RAW (json_data VARIANT);
--- CREATE OR REPLACE TABLE CARTS_RAW    (json_data VARIANT);
--- CREATE OR REPLACE TABLE USERS_RAW    (json_data VARIANT);
-
--- 6) Test og hent filnavn
-LIST @RAW_JSON_STAGE;
-LIST @RAW_JSON_STAGE PATTERN = '.*products_.*[.]json$';
-LIST @RAW_JSON_STAGE PATTERN = '.*carts_.*[.]json$';
-LIST @RAW_JSON_STAGE PATTERN = '.*users_.*[.]json$';
-
--- 7) COPY til råtabeller med FORCE=FALSE for kun nye filer
-COPY INTO PRODUCTS_RAW (json_data)
-  FROM @RAW_JSON_STAGE
-  FILE_FORMAT = RAW_JSON_FORMAT
-  PATTERN     = '.*products_.*[.]json$'
-  FORCE       = FALSE
-  ON_ERROR    = 'CONTINUE'
+-- 4) Opprett eksterne tabeller slik at metadata$filename er tilgjengelig
+CREATE OR REPLACE EXTERNAL TABLE PRODUCTS_EXT (
+  json_data VARIANT AS (VALUE),
+  file_name STRING  AS (METADATA$FILENAME)
+)
+WITH LOCATION = @RAW_JSON_STAGE
+FILE_FORMAT = (FORMAT_NAME = RAW_JSON_FORMAT)
+PATTERN     = 'products_.*[.]json$'
+AUTO_REFRESH = FALSE
 ;
 
-COPY INTO CARTS_RAW (json_data)
-  FROM @RAW_JSON_STAGE
-  FILE_FORMAT = RAW_JSON_FORMAT
-  PATTERN     = '.*carts_.*[.]json$'
-  FORCE       = FALSE
-  ON_ERROR    = 'CONTINUE'
+CREATE OR REPLACE EXTERNAL TABLE CARTS_EXT (
+  json_data VARIANT AS (VALUE),
+  file_name STRING  AS (METADATA$FILENAME)
+)
+WITH LOCATION = @RAW_JSON_STAGE
+FILE_FORMAT = (FORMAT_NAME = RAW_JSON_FORMAT)
+PATTERN     = 'carts_.*[.]json$'
+AUTO_REFRESH = FALSE
 ;
 
-COPY INTO USERS_RAW (json_data)
-  FROM @RAW_JSON_STAGE
-  FILE_FORMAT = RAW_JSON_FORMAT
-  PATTERN     = '.*users_.*[.]json$'
-  FORCE       = FALSE
-  ON_ERROR    = 'CONTINUE'
+CREATE OR REPLACE EXTERNAL TABLE USERS_EXT (
+  json_data VARIANT AS (VALUE),
+  file_name STRING  AS (METADATA$FILENAME)
+)
+WITH LOCATION = @RAW_JSON_STAGE
+FILE_FORMAT = (FORMAT_NAME = RAW_JSON_FORMAT)
+PATTERN     = 'users_.*[.]json$'
+AUTO_REFRESH = FALSE
 ;
 
--- 8) Opprett eller oppdater task som kjører hver mandag kl 11:00 UTC
+-- 5) (Re-)opprett råtabeller med kolonner json_data + file_name
+CREATE OR REPLACE TABLE PRODUCTS_RAW (
+  json_data VARIANT,
+  file_name STRING
+);
+
+CREATE OR REPLACE TABLE CARTS_RAW (
+  json_data VARIANT,
+  file_name STRING
+);
+
+CREATE OR REPLACE TABLE USERS_RAW (
+  json_data VARIANT,
+  file_name STRING
+);
+
+-- 6) Opprett eller oppdater task for inkrementell last
 CREATE OR REPLACE TASK RAW_STAGE_LOAD_TASK
   WAREHOUSE = RAW_LOAD_WH
   SCHEDULE  = 'USING CRON 0 11 * * 1 UTC'
 AS
-  COPY INTO PRODUCTS_RAW (json_data)
-    FROM @RAW_JSON_STAGE
-    FILE_FORMAT = RAW_JSON_FORMAT
-    PATTERN     = '.*products_.*[.]json$'
-    FORCE       = FALSE
-    ON_ERROR    = 'CONTINUE'
-  ;
-  COPY INTO CARTS_RAW (json_data)
-    FROM @RAW_JSON_STAGE
-    FILE_FORMAT = RAW_JSON_FORMAT
-    PATTERN     = '.*carts_.*[.]json$'
-    FORCE       = FALSE
-    ON_ERROR    = 'CONTINUE'
-  ;
-  COPY INTO USERS_RAW (json_data)
-    FROM @RAW_JSON_STAGE
-    FILE_FORMAT = RAW_JSON_FORMAT
-    PATTERN     = '.*users_.*[.]json$'
-    FORCE       = FALSE
-    ON_ERROR    = 'CONTINUE'
+
+  -- A) Load nye PRODUCTS
+  INSERT INTO PRODUCTS_RAW (json_data, file_name)
+  SELECT json_data, file_name
+  FROM PRODUCTS_EXT
+  WHERE file_name NOT IN (SELECT file_name FROM PRODUCTS_RAW)
   ;
 
--- 9) Aktiver tasken og verifiser
+  -- B) Load nye CARTS
+  INSERT INTO CARTS_RAW (json_data, file_name)
+  SELECT json_data, file_name
+  FROM CARTS_EXT
+  WHERE file_name NOT IN (SELECT file_name FROM CARTS_RAW)
+  ;
+
+  -- C) Load nye USERS
+  INSERT INTO USERS_RAW (json_data, file_name)
+  SELECT json_data, file_name
+  FROM USERS_EXT
+  WHERE file_name NOT IN (SELECT file_name FROM USERS_RAW)
+  ;
+
+-- 7) Aktiver tasken
 ALTER TASK RAW_STAGE_LOAD_TASK RESUME;
+
+-- 8) Sjekk at tasken er på plass
 SHOW TASKS LIKE 'RAW_STAGE_LOAD_TASK';
