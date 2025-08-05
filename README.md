@@ -299,5 +299,115 @@ We’ve introduced a dedicated Azure AD–based Storage Integration in Snowflake
      STORAGE_INTEGRATION = MY_AZURE_INT
      FILE_FORMAT         = RAW_JSON_FORMAT;
    ```
+# 🧩 Dummy JSON Azure → Snowflake Data Pipeline with dbt
+
+This project demonstrates an end-to-end data pipeline using Azure, Snowflake, and dbt. It ingests JSON data from Azure Blob Storage, processes it through Snowflake tasks and stages, and models it into analytics-ready tables using dbt.
+
+## 🚀 Overview
+
+- Ingestion via Azure Functions (HTTP & timer triggers)
+- Secrets management via Azure Key Vault
+- CI/CD automation with GitHub Actions
+- Data landing in Snowflake using external stages
+- Transformation and modeling with dbt
+- Fully tested pipeline and models for production-quality standards
+
+---
+
+## 🔄 Pipeline Flow
+
+1. **Trigger**: Timer-based or HTTP-triggered Azure Function starts the ingestion.
+2. **Load**: New JSON files from blob storage are moved to Snowflake using a Snowflake task.
+3. **Store**: Raw data is stored in `raw_*` tables as `VARIANT` columns.
+4. **Transform**: dbt parses, transforms, and structures the data into dimensional models.
+5. **Test**: dbt tests ensure data quality and schema integrity.
+
+---
+
+## 🧠 dbt Models Overview
+
+### Raw models (`raw_*`)
+- Store original JSON content from blob storage in `VARIANT` format.
+- Includes metadata such as `file_name` to track ingestion source.
+
+### Staging models (`stg_*`)
+- Parses JSON arrays for:
+  - `products`, `carts`, and `users`.
+- Implements:
+  - Latest-file filtering using `file_name` timestamps.
+  - `ingest_date` exposure for lineage and tracking.
+  - JSON flattening into structured tabular columns.
+
+### Intermediate models (`int_*`)
+- Business logic transformations, including:
+  - Cart metrics like `total_products`, `total_quantity`, `avg_price_per_item`, and `cart_size`.
+  - Product-level calculations such as `is_in_stock`, `price_difference`, etc.
+  - User enhancements like `full_name` and `age_group` classification.
+
+### Marts (fact & dimension tables)
+- Final analytics-ready models designed for star schema:
+  - `fact_carts`: central fact table for cart events.
+  - `dim_products`, `dim_users`: clean dimension tables.
+- Renamed from `marts_*` to `fact_/dim_` for clarity and best practices.
+
+### Schema Tests
+- `not_null` constraints on key fields.
+- `accepted_values` checks for:
+  - `cart_size`, `stock_status`, `age_group`, and `gender`.
+- Relaxed or removed `unique`/`foreign key` tests in staging to accommodate dummy source data.
+
+---
+
+## 📁 Repository Structure
+
+├── azure_functions/
+│ └── IngestionFunction/
+├── sql/
+│ └── tasks/
+│ └── 01_create_task.sql
+├── dbt/
+│ ├── models/
+│ ├── tests/
+│ └── dbt_project.yml
+├── .github/
+│ └── workflows/
+│ └── ci-cd.yml
+├── README.md
+└── requirements.txt
+
+
+---
+
+## 📦 Tech Stack
+
+- **Azure Functions** (Python)
+- **Azure Key Vault** (Secrets)
+- **Azure Blob Storage**
+- **Snowflake** (Warehouse, Stages, Tasks)
+- **dbt** (Data transformation and testing)
+- **GitHub Actions** (CI/CD)
+
+---
+
+## ✅ How to Run Locally
+
+1. Clone repo and create a `.env` file for Azure Function secrets.
+2. Set up Snowflake and create necessary roles, warehouses, and stages.
+3. Deploy Azure Functions and connect to Blob Storage.
+4. Run `dbt seed`, `dbt run`, and `dbt test` to transform and validate data.
+
+---
+
+## 📬 Contact
+
+Have questions or want to learn more about the project?
+
+Feel free to reach out via [LinkedIn](https://linkedin.com/) or [email@example.com](mailto:email@example.com).
+
+---
+
+## 📄 License
+
+MIT License.
 
 This eliminates manual SAS tokens and centralizes Azure AD–based authentication for Snowflake loads.
